@@ -20,7 +20,7 @@ export type MetaFields = { tags: string[] };
 /**
  * типы данных которые есть в модели Contentful
  */
-export type ContentTypes = "blog" | "career" | "Pages" | "posts" | "projects";
+export type ContentTypes = "blog" | "career" | "pages" | "posts" | "projects";
 
 /**
  * общие поля для типов blog Pages posts
@@ -43,7 +43,7 @@ export type ContentFieldsNames = {
     | "dateFrom"
     | "dateTo"
   )[];
-  Pages: readonly (SharedFields | "json")[];
+  pages: readonly (SharedFields | "json")[];
   posts: readonly SharedFields[];
   projects: readonly SharedFields[];
 };

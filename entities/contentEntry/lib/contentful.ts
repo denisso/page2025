@@ -15,7 +15,7 @@ import type {
   FieldsTypes,
 } from "../model/types";
 
-// Используем утверждение типа для sharedFields
+// Имена полей для типов blog pages posts projects pages
 const sharedFields = [
   "slug",
   "title",
@@ -24,17 +24,6 @@ const sharedFields = [
   "body",
   "refs",
 ] as const satisfies readonly SharedFields[];
-
-// Для Pages создаем отдельную константу с явным типом
-const pagesFields = [
-  "slug",
-  "title",
-  "subtitle",
-  "image",
-  "body",
-  "refs",
-  "json",
-] as const satisfies readonly (SharedFields | "json")[];
 
 export const contentFieldsNames = {
   blog: sharedFields,
@@ -46,14 +35,18 @@ export const contentFieldsNames = {
     "dateFrom",
     "dateTo",
   ] as const,
-  Pages: pagesFields,
+  pages: ["json", ...sharedFields] as const,
   posts: sharedFields,
   projects: sharedFields,
 } satisfies ContentFieldsNames;
 
+/**
+ * Получить элемент по ID
+ * @param id 
+ * @returns 
+ */
 export const getEntry = async <T extends ContentTypes>(
-  id: string,
-  type: T
+  id: string
 ): Promise<ContentEntity<T>> => {
   return client
     .getEntry<EntrySkeletonType<Partial<ContentFields[T]>>>(id)
@@ -67,6 +60,7 @@ export const getEntry = async <T extends ContentTypes>(
           : null,
         id: entry.sys.id,
       };
+      const type = entry.sys.contentType.sys.id.toLocaleLowerCase() as T;
       const fields = transformFields<T>(entry, type);
       const metadata = {
         tags: entry.metadata.tags.map((e) => e.sys.id),
@@ -91,7 +85,7 @@ function transformFields<T extends ContentTypes>(
 
   fieldNames.forEach((fieldName) => {
     const field = fieldName as keyof ContentFields[T];
-    // const field = fieldName as  FieldsTypes[fieldName as keyof ContentFields[T]];
+
     if (Object.hasOwn(rawFields, field)) {
       // Обрабатываем специальные случаи
       if (field === "dateFrom" || field === "dateTo") {
@@ -127,8 +121,6 @@ function transformImage(image: Array<AssetFields>): ContentImage | null {
     width: asset.file.details?.image?.width ?? -1,
   };
 }
-
-export const getPost = () => {};
 
 type EntriesFilter<K extends ContentTypes> = {
   content_type: ContentTypes;
