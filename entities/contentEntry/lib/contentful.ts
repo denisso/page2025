@@ -1,6 +1,7 @@
 /**
  * адаптер запросов Contentful
  */
+import { cache } from "react";
 import { client } from "@/shared/api/contentful";
 import type { EntrySkeletonType, Entry, AssetFields } from "contentful";
 import type {
@@ -42,10 +43,10 @@ export const contentFieldsNames = {
 
 /**
  * Получить элемент по ID
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
-export const getEntry = async <T extends ContentTypes>(
+const _getEntry = async <T extends ContentTypes>(
   id: string
 ): Promise<ContentEntity<T>> => {
   return client
@@ -68,6 +69,8 @@ export const getEntry = async <T extends ContentTypes>(
       return { sys, fields, metadata };
     });
 };
+
+export const getEntry = cache(_getEntry);
 
 // Функция для преобразования полей Contentful в ваши типы
 function transformFields<T extends ContentTypes>(
@@ -147,6 +150,8 @@ export const getEntries = async <T extends ContentTypes>(
   }
   return client.getEntries(filter);
 };
+
+
 
 export const getTags = async () => {
   return client.getTags().then((response) => {
