@@ -129,6 +129,7 @@ type EntriesFilter<K extends ContentTypes> = {
   content_type: ContentTypes;
   limit: number;
   "metadata.tags.sys.id[in]"?: string[];
+  "metadata.concepts.sys.id[in]"?: string[];
   select: ("sys" | NamesFields[K] | "metadata.tags")[];
   order: ["sys.createdAt"];
 };
@@ -137,6 +138,7 @@ export const getEntries = async <T extends ContentTypes>(
   type: T,
   fields: NamesFields[T][],
   tags: string[] = [],
+  taxonomies: string[],
   limit: number = 10
 ) => {
   const filter: EntriesFilter<T> = {
@@ -148,10 +150,11 @@ export const getEntries = async <T extends ContentTypes>(
   if (tags.length) {
     filter["metadata.tags.sys.id[in]"] = tags;
   }
+  if (taxonomies.length) {
+    filter["metadata.concepts.sys.id[in]"] = taxonomies;
+  }
   return client.getEntries(filter);
 };
-
-
 
 export const getTags = async () => {
   return client.getTags().then((response) => {
