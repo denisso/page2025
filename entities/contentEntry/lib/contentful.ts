@@ -6,7 +6,6 @@ import { client } from "@/shared/api/contentful";
 import type { EntrySkeletonType, Entry, AssetFields } from "contentful";
 import type {
   ContentTypes,
-  NamesFields,
   SYSFields,
   ContentImage,
   ContentFields,
@@ -14,6 +13,8 @@ import type {
   ContentFieldsNames,
   ContentEntity,
   FieldsTypes,
+  Fields,
+  MetaFields,
 } from "../model/types";
 
 // Имена полей для типов blog pages posts projects pages
@@ -23,7 +24,7 @@ const sharedFields = [
   "subtitle",
   "image",
   "body",
-  "refs",
+  // "refs",
 ] as const satisfies readonly SharedFields[];
 
 export const contentFieldsNames = {
@@ -36,7 +37,8 @@ export const contentFieldsNames = {
     "dateFrom",
     "dateTo",
   ] as const,
-  pages: ["json", ...sharedFields] as const,
+  // pages: ["json", ...sharedFields] as const,
+  pages: sharedFields,
   posts: sharedFields,
   projects: sharedFields,
 } satisfies ContentFieldsNames;
@@ -101,7 +103,7 @@ function transformFields<T extends ContentTypes>(
       } else if (field === "image") {
         const data = rawFields[field] as Array<AssetFields>;
         // Преобразуем Asset в ваш формат Image
-        (fields[field] as FieldsTypes["image"]) = transformImage(data);
+        (fields[field] as FieldsTypes["image"]) = getImage(data);
       } else {
         // Для остальных полей просто копируем значение
         fields[field] = (rawFields[field] ??
@@ -113,7 +115,15 @@ function transformFields<T extends ContentTypes>(
   return fields as ContentFields[T];
 }
 
-function transformImage(image: Array<AssetFields>): ContentImage | null {
+function getDate(data: string): number {
+  return new Date(data as string).getTime() as number;
+}
+
+function getString(data: string): string {
+  return data;
+}
+
+function getImage(image: Array<AssetFields>): ContentImage | null {
   if (!Array.isArray(image) || !image.length) return null;
   const asset = image[0];
   if (!asset.file) return null;
@@ -125,35 +135,101 @@ function transformImage(image: Array<AssetFields>): ContentImage | null {
   };
 }
 
-type EntriesFilter<K extends ContentTypes> = {
+const getDataMethods: {
+  [key in Fields]: typeof getDate | typeof getString | typeof getImage;
+} = {
+  slug: getString,
+  title: getString,
+  subtitle: getString,
+  image: getImage,
+  body: getString,
+  // refs: getString,
+  position: getString,
+  job: getString,
+  description: getString,
+  responsibilities: getString,
+  dateFrom: getDate,
+  dateTo: getDate,
+};
+type EntriesFilter = Partial<{
   content_type: ContentTypes;
   limit: number;
-  "metadata.tags.sys.id[in]"?: string[];
-  "metadata.concepts.sys.id[in]"?: string[];
-  select: ("sys" | NamesFields[K] | "metadata.tags")[];
+  "metadata.tags.sys.id[in]": string[];
+  "metadata.concepts.sys.id[in]": string[];
+  select: ("sys" | "metadata.tags" | "fields")[];
   order: ["sys.createdAt"];
+}>;
+
+type GetEntriesProps<T extends Fields[]> = Partial<{
+  type: ContentTypes;
+  fields: T;
+  tags: string[];
+  taxonomies: string[];
+  limit: number;
+}>;
+
+type GetEntriesResult<T extends Fields[]> = {
+  sys: SYSFields;
+  metadata: MetaFields;
+  fields: {
+    [K in T[number]]: K extends keyof FieldsTypes
+      ? FieldsTypes[K] | undefined
+      : never;
+  };
 };
 
-export const getEntries = async <T extends ContentTypes>(
-  type: T,
-  fields: NamesFields[T][],
-  tags: string[] = [],
-  taxonomies: string[],
-  limit: number = 10
-) => {
-  const filter: EntriesFilter<T> = {
-    content_type: type,
+export const getEntries = async <T extends Fields[]>({
+  fields,
+  tags,
+  taxonomies,
+  limit,
+}: GetEntriesProps<T>): Promise<GetEntriesResult<T>[]> => {
+  const filter: EntriesFilter = {
     limit,
-    select: ["sys", "metadata.tags", ...fields],
+    select: ["sys", "metadata.tags", "fields"],
     order: ["sys.createdAt"],
   };
-  if (tags.length) {
+  if (Array.isArray(filter["select"])) {
+    filter["select"] = ["sys", ...filter["select"]];
+  }
+
+  if (tags && tags.length) {
     filter["metadata.tags.sys.id[in]"] = tags;
   }
-  if (taxonomies.length) {
+  if (taxonomies && taxonomies.length) {
     filter["metadata.concepts.sys.id[in]"] = taxonomies;
   }
-  return client.getEntries(filter);
+  return client.getEntries(filter).then((data) => {
+    const result: GetEntriesResult<T>[] = [];
+    const items = data.items;
+    for (const item of items) {
+      const sys: SYSFields = {
+        createdAt: item.sys.createdAt
+          ? new Date(item.sys.createdAt).getTime()
+          : null,
+        updatedAt: item.sys.updatedAt
+          ? new Date(item.sys.updatedAt).getTime()
+          : null,
+        id: item.sys.id,
+      };
+      const metadata = {
+        tags: item.metadata.tags.map((e) => e.sys.id),
+      };
+      const fieldsResult: Partial<{ [key in Fields]: FieldsTypes[key] }> = {};
+      for (const field of fields ?? []) {
+        if (!getDataMethods[field]) continue;
+        fieldsResult[field as T[number]] = getDataMethods[field](
+          item.fields[field] as string & AssetFields[]
+        ) as FieldsTypes[T[number]];
+      }
+      result.push({
+        sys,
+        fields: fieldsResult as GetEntriesResult<T>["fields"],
+        metadata,
+      });
+    }
+    return result;
+  });
 };
 
 export const getTags = async () => {

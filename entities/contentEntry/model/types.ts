@@ -22,28 +22,43 @@ export type MetaFields = { tags: string[] };
  */
 export type ContentTypes = "blog" | "career" | "pages" | "posts" | "projects";
 
-/**
- * общие поля для типов blog Pages posts
- */
-export type SharedFields =
+export type Fields =
   | "slug"
   | "title"
   | "subtitle"
   | "image"
   | "body"
-  | "refs";
+  | "position"
+  | "job"
+  | "description"
+  | "responsibilities"
+  | "dateFrom"
+  | "dateTo";
+
+type FieldsObject = {
+  [K in Fields]: K;
+};
+/**
+ * общие поля для типов blog Pages posts
+ */
+export type SharedFields = keyof Pick<
+  FieldsObject,
+  "slug" | "title" | "subtitle" | "image" | "body"
+>;
+type CareerFields = keyof Pick<
+  FieldsObject,
+  | "position"
+  | "job"
+  | "description"
+  | "responsibilities"
+  | "dateFrom"
+  | "dateTo"
+>;
 
 export type ContentFieldsNames = {
   blog: readonly SharedFields[];
-  career: readonly (
-    | "position"
-    | "job"
-    | "description"
-    | "responsibilities"
-    | "dateFrom"
-    | "dateTo"
-  )[];
-  pages: readonly (SharedFields | "json")[];
+  career: readonly CareerFields[];
+  pages: readonly SharedFields[];
   posts: readonly SharedFields[];
   projects: readonly SharedFields[];
 };
