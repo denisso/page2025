@@ -7,8 +7,8 @@
  * набор системных полей
  */
 export type SYSFields = {
-  createdAt: number | null;
-  updatedAt: number | null;
+  createdAt: number;
+  updatedAt?: number;
   id: string;
 };
 

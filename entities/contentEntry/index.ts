@@ -1,1 +1,2 @@
-export { getEntry } from "./lib/contentful";
+export * from "./lib/contentful";
+export type * from "./model/types"
