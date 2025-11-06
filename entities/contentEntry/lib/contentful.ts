@@ -58,10 +58,10 @@ type EntryResult<T extends Fields[]> = {
  */
 const _getEntry = async <T extends Fields[]>(
   id: string,
-  fields?: T,
+  fields?: T
 ): Promise<EntryResult<T>> => {
   let _fields: T;
-console.log("_getEntry")
+  console.log("_getEntry");
   return client
     .getEntry<EntrySkeletonType<EntryResult<T>>>(id)
     .then((entry) => {
@@ -156,10 +156,11 @@ function getImage(image: Array<AssetFields>): ContentImage | null {
 type EntriesFilter = Partial<{
   content_type: ContentTypes;
   limit: number;
+  skip?: number;
   "metadata.tags.sys.id[in]": string[];
   "metadata.concepts.sys.id[in]": string[];
   select: ("sys" | "metadata.tags" | "fields")[];
-  order: ["sys.createdAt"];
+  order: ("sys.createdAt" | "-sys.createdAt")[];
 }>;
 
 type GetEntriesProps<T extends Fields[]> = {
@@ -168,6 +169,7 @@ type GetEntriesProps<T extends Fields[]> = {
   tags?: string[];
   taxonomies?: string[];
   limit: number;
+  skip?: number;
 };
 
 export const _getEntries = async <T extends Fields[]>({
@@ -175,11 +177,13 @@ export const _getEntries = async <T extends Fields[]>({
   tags,
   taxonomies,
   limit,
+  skip = 0,
 }: GetEntriesProps<T>): Promise<EntryResult<T>[]> => {
   const filter: EntriesFilter = {
     limit,
     select: ["sys", "metadata.tags", "fields"],
-    order: ["sys.createdAt"],
+    order: ["-sys.createdAt"],
+    skip,
   };
   if (Array.isArray(filter["select"])) {
     filter["select"] = ["sys", ...filter["select"]];
