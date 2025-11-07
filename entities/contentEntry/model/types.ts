@@ -1,6 +1,5 @@
 /**
- * типы данных модели Contentful
- * у contentful нет openapi типы из админки прописаны вручную
+ * типы данных модели контента на сайте 
  */
 
 /**
@@ -18,10 +17,18 @@ export type SYSFields = {
 export type MetaFields = { tags: string[] };
 
 /**
- * типы данных которые есть в модели Contentful
+ * типы сущностей которые есть в модели, у каждого типа свой набор свойств 
+ * "career" - опыт работы в компаниях
+ * "pages" - страницы сайта 
+ * "posts" - посты, статьи, руководства и т.д. 
+ * "blog" - блог
+ * "projects" - проекты
  */
 export type ContentTypes = "blog" | "career" | "pages" | "posts" | "projects";
 
+/**
+ * все свойства сущностей которые есть в модели
+ */
 export type Fields =
   | "slug"
   | "title"
@@ -38,13 +45,19 @@ export type Fields =
 type FieldsObject = {
   [K in Fields]: K;
 };
+
+
 /**
- * общие поля для типов blog Pages posts
+ * свойства для типов blog Pages posts
  */
 export type SharedFields = keyof Pick<
   FieldsObject,
   "slug" | "title" | "subtitle" | "image" | "body"
 >;
+
+/**
+ * свойства сущности career
+ */
 type CareerFields = keyof Pick<
   FieldsObject,
   | "position"
@@ -55,7 +68,10 @@ type CareerFields = keyof Pick<
   | "dateTo"
 >;
 
-export type ContentFieldsNames = {
+/**
+ * набор свойств для каждой сущности
+ */
+export type NamesFields = {
   blog: readonly SharedFields[];
   career: readonly CareerFields[];
   pages: readonly SharedFields[];
@@ -63,10 +79,9 @@ export type ContentFieldsNames = {
   projects: readonly SharedFields[];
 };
 
-export type NamesFields = {
-  [K in ContentTypes]: ContentFieldsNames[K][number];
-};
-
+/**
+ * свойства картинки
+ */
 export type ContentImage = {
   src: string;
   format: string;
@@ -74,6 +89,9 @@ export type ContentImage = {
   width: number;
 };
 
+/**
+ * типы свойств
+ */
 export type FieldsTypes = {
   slug: string;
   title: string;
@@ -90,10 +108,16 @@ export type FieldsTypes = {
   dateTo: number | null;
 };
 
+/**
+ * создаем для каждого типа набор свойств 
+ */
 export type ContentFields = {
-  [K in ContentTypes]: Pick<FieldsTypes, NamesFields[K]>;
+  [K in ContentTypes]: Pick<FieldsTypes, NamesFields[K][number]>;
 };
 
+/**
+ * сущность со всеми свойствами
+ */
 export type ContentEntity<T extends ContentTypes> = {
   sys: SYSFields;
   metadata: MetaFields;

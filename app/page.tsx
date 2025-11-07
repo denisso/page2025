@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { getEntry, getEntries } from "@/entities/contentEntry";
 import { getEnv } from "@/shared/lib";
-import { NamesFields } from "@/entities/contentEntry";
 import { formatDate } from "@/shared/lib/formatDate";
+
 export async function generateMetadata(): Promise<Metadata> {
-  const pageData = await getEntry<NamesFields["pages"][]>(
+  const pageData = await getEntry<["title"]>(
     getEnv("PAGE_ABOUTME_ID")
   );
   return {
@@ -23,7 +23,7 @@ export default async function Home() {
     <>
       <div>{pageData.fields.title}</div>
       <div>
-        {posts.map((e) => (
+        {posts.entries.map((e) => (
           <div key={e.sys.id}>
             <div>Date: {formatDate(e.sys.createdAt)}</div>
             <div>{e.fields.title}</div>

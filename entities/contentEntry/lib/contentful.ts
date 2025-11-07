@@ -9,7 +9,7 @@ import type {
   SYSFields,
   ContentImage,
   SharedFields,
-  ContentFieldsNames,
+  NamesFields,
   FieldsTypes,
   Fields,
   MetaFields,
@@ -39,7 +39,7 @@ const contentFieldsNames = {
   pages: sharedFields,
   posts: sharedFields,
   projects: sharedFields,
-} satisfies ContentFieldsNames;
+} satisfies NamesFields;
 
 type EntryResult<T extends Fields[]> = {
   sys: SYSFields;
@@ -86,7 +86,12 @@ type FieldsResult<T extends Fields[]> = {
   [K in T[number]]: FieldsTypes[K];
 };
 
-// Функция для преобразования полей Contentful в ваши типы
+/**
+ * получаем данные из ответа Contentful
+ * @param entity - сущность из ответа функций getEntry и getEntries
+ * @param fields - набор полей которые есть в этой сущности, не обязательно что они там есть
+ * @returns
+ */
 function transformFields<T extends Fields[]>(
   entity: Entry,
   fields: T
@@ -152,9 +157,13 @@ function getImage(image: Array<AssetFields>): ContentImage | null {
     width: asset.file.details?.image?.width ?? -1,
   };
 }
-
+/**
+ * Фильтр сущностей
+ */
 type EntriesFilter = Partial<{
+  // тип
   content_type: ContentTypes;
+  // лимит запрошенных сущностей
   limit: number;
   skip?: number;
   "metadata.tags.sys.id[in]": string[];
@@ -172,13 +181,24 @@ type GetEntriesProps<T extends Fields[]> = {
   skip?: number;
 };
 
+type GetEntriesResult<T extends Fields[]> = {
+  entries: EntryResult<T>[];
+  limit: number;
+  skip: number;
+  total: number;
+};
+/**
+ * получить сущности по фильтру
+ * @param param0
+ * @returns
+ */
 export const _getEntries = async <T extends Fields[]>({
   fields,
   tags,
   taxonomies,
   limit,
   skip = 0,
-}: GetEntriesProps<T>): Promise<EntryResult<T>[]> => {
+}: GetEntriesProps<T>): Promise<GetEntriesResult<T>> => {
   const filter: EntriesFilter = {
     limit,
     select: ["sys", "metadata.tags", "fields"],
@@ -196,19 +216,20 @@ export const _getEntries = async <T extends Fields[]>({
     filter["metadata.concepts.sys.id[in]"] = taxonomies;
   }
   return client.getEntries(filter).then((data) => {
-    const result: EntryResult<T>[] = [];
+    const { total, skip, limit } = data;
+    const entries: EntryResult<T>[] = [];
     const items = data.items;
     for (const item of items) {
       const sys: SYSFields = getSYS(item);
       const metadata = getMetadata(item);
       const fieldsResult = transformFields<T>(item, fields);
-      result.push({
+      entries.push({
         sys,
         fields: fieldsResult as EntryResult<T>["fields"],
         metadata,
       });
     }
-    return result;
+    return { total, skip, limit, entries };
   });
 };
 export const getEntries = cache(_getEntries);
