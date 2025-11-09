@@ -1,5 +1,5 @@
 /**
- * типы данных модели контента на сайте 
+ * типы данных модели контента на сайте
  */
 
 /**
@@ -17,14 +17,14 @@ export type SYSFields = {
 export type MetaFields = { tags: string[] };
 
 /**
- * типы сущностей которые есть в модели, у каждого типа свой набор свойств 
+ * типы сущностей которые есть в модели, у каждого типа свой набор свойств
  * "career" - опыт работы в компаниях
- * "pages" - страницы сайта 
- * "posts" - посты, статьи, руководства и т.д. 
+ * "pages" - страницы сайта
+ * "posts" - посты, статьи, руководства и т.д.
  * "blog" - блог
  * "projects" - проекты
  */
-export type ContentTypes = "blog" | "career" | "pages" | "posts" | "projects";
+export type ContentTypes = "career" | "pages" | "posts" | "projects";
 
 /**
  * все свойства сущностей которые есть в модели
@@ -33,6 +33,7 @@ export type Fields =
   | "slug"
   | "title"
   | "subtitle"
+  | "description"
   | "image"
   | "body"
   | "position"
@@ -46,13 +47,12 @@ type FieldsObject = {
   [K in Fields]: K;
 };
 
-
 /**
  * свойства для типов blog Pages posts
  */
 export type SharedFields = keyof Pick<
   FieldsObject,
-  "slug" | "title" | "subtitle" | "image" | "body"
+  "slug" | "title" | "subtitle" | "image" | "body" | "description"
 >;
 
 /**
@@ -109,7 +109,7 @@ export type FieldsTypes = {
 };
 
 /**
- * создаем для каждого типа набор свойств 
+ * создаем для каждого типа набор свойств
  */
 export type ContentFields = {
   [K in ContentTypes]: Pick<FieldsTypes, NamesFields[K][number]>;

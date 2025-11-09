@@ -117,7 +117,7 @@ function transformFields<T extends Fields[]>(
       (fieldsResult[field] as FieldsTypes["image"]) = getImage(data);
     } else {
       fieldsResult[field] = String(
-        rawFields[field]
+        rawFields[field] ?? ""
       ) as FieldsTypes[typeof field];
     }
   }
@@ -234,6 +234,10 @@ export const _getEntries = async <T extends Fields[]>({
 };
 export const getEntries = cache(_getEntries);
 
+/**
+ *
+ * @returns
+ */
 export const getTags = async () => {
   return client.getTags().then((response) => {
     response.items.map((e) => e.sys.id);
