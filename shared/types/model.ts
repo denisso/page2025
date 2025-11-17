@@ -118,8 +118,12 @@ export type ContentFields = {
 /**
  * сущность со всеми свойствами
  */
-export type ContentEntity<T extends ContentTypes> = {
+export type EntryResult<T extends Fields[]> = {
   sys: SYSFields;
   metadata: MetaFields;
-  fields: ContentFields[T];
+  fields: {
+    [K in T[number]]: K extends keyof FieldsTypes
+      ? FieldsTypes[K] | undefined
+      : never;
+  };
 };

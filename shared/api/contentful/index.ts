@@ -14,7 +14,9 @@ import type {
   FieldsTypes,
   Fields,
   MetaFields,
-} from "../../types";
+  EntryResult,
+} from "@/shared/types";
+import type { GetEntriesResult, GetEntriesProps } from "@/shared/api";
 
 export const client = contentful.createClient({
   space: getEnv("CONTENTFUL_SPACE_ID"),
@@ -47,16 +49,6 @@ const contentFieldsNames = {
   posts: sharedFields,
   projects: sharedFields,
 } satisfies NamesFields;
-
-type EntryResult<T extends Fields[]> = {
-  sys: SYSFields;
-  metadata: MetaFields;
-  fields: {
-    [K in T[number]]: K extends keyof FieldsTypes
-      ? FieldsTypes[K] | undefined
-      : never;
-  };
-};
 
 /**
  * Получить элемент по ID
@@ -175,31 +167,18 @@ type EntriesFilter = Partial<{
   skip?: number;
   "metadata.tags.sys.id[in]": string[];
   "metadata.concepts.sys.id[in]": string[];
+  "sys.contentType.sys.id[in]": string[];
   select: ("sys" | "metadata.tags" | "fields")[];
   order: ("sys.createdAt" | "-sys.createdAt")[];
 }>;
 
-type GetEntriesProps<T extends Fields[]> = {
-  type?: ContentTypes;
-  fields: T;
-  tags?: string[];
-  taxonomies?: string[];
-  limit: number;
-  skip?: number;
-};
-
-type GetEntriesResult<T extends Fields[]> = {
-  entries: EntryResult<T>[];
-  limit: number;
-  skip: number;
-  total: number;
-};
 /**
  * получить сущности по фильтру
  * @param param0
  * @returns
  */
 export const _getEntries = async <T extends Fields[]>({
+  types,
   fields,
   tags,
   taxonomies,
@@ -215,7 +194,9 @@ export const _getEntries = async <T extends Fields[]>({
   if (Array.isArray(filter["select"])) {
     filter["select"] = ["sys", ...filter["select"]];
   }
-
+  if (types) {
+    filter["sys.contentType.sys.id[in]"] = types;
+  }
   if (tags && tags.length) {
     filter["metadata.tags.sys.id[in]"] = tags;
   }
@@ -250,4 +231,3 @@ export const getTags = async () => {
     response.items.map((e) => e.sys.id);
   });
 };
-
