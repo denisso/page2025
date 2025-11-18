@@ -1,4 +1,4 @@
-import { Link } from "@/shared/ui";
+import { Link } from "@/shared/ui/Link";
 import styles from "./Header.module.css";
 
 export const Header = () => {
