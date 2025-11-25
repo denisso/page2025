@@ -1,28 +1,12 @@
-import type { Fields, EntryResult, ContentTypes } from "@/shared/types";
-
+import type { Fields, EntryResult } from "@/shared/types";
+import type { GetEntriesProps, GetEntriesResult } from "./types";
 import * as client from "./contentful";
 
-export const getEntry = async <T extends Fields[]>(
+export const getEntry = async <T extends readonly Fields[]>(
   id: string,
-  fields?: T
+  fields: T
 ): Promise<EntryResult<T>> => client.getEntry<T>(id, fields);
 
-export type GetEntriesResult<T extends Fields[]> = {
-  entries: EntryResult<T>[];
-  limit: number;
-  skip: number;
-  total: number;
-};
-
-export type GetEntriesProps<T extends Fields[]> = {
-  types?: ContentTypes[];
-  fields: T;
-  tags?: string[];
-  taxonomies?: string[];
-  limit: number;
-  skip?: number;
-};
-
-export const getEntries = async <T extends Fields[]>(
+export const getEntries = async <T extends readonly Fields[]>(
   filter: GetEntriesProps<T>
 ): Promise<GetEntriesResult<T>> => client.getEntries<T>(filter);

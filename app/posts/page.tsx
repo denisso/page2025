@@ -1,11 +1,11 @@
-import { ListPosts } from "@/widgets/ListPosts";
+import { ListPosts } from "@/entities/post/ui/ListPosts";
 
 export default function Page() {
   return (
     <div>
       <h1>posts</h1>
       <div>
-        <ListPosts />
+        <ListPosts posts={[]}/>
       </div>
     </div>
   );
