@@ -1,4 +1,9 @@
-
+/**
+ * Форматирует числовое значение даты в строку вида `YYYY/MM/DD HH:MM`.
+ *
+ * @param dateNow - Временная метка в миллисекундах.
+ * @returns Отформатированная строка с датой и временем.
+ */
 export function formatDate(dateNow: number) {
   const date = new Date(dateNow);
 
