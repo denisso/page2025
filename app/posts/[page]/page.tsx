@@ -4,15 +4,20 @@
 import { getPosts } from "@/entities/post";
 import Link from "next/link";
 
+interface Props {
+  params: {
+    page: string;
+  };
+}
 
-export default async function PostsPage() {
-  const pageNumber = 0
+export default async function PostsPage({ params }: Props) {
+  const pageNumber = parseInt((await params).page);
 
   if (isNaN(pageNumber)) {
     return <Link href={"/posts"}>Goto posts</Link>;
   }
   const posts = await getPosts(null, null, pageNumber, 2);
-  console.log(posts);
+
   const Prev =
     pageNumber > 0 ? (
       <Link href={"/posts/" + (pageNumber - 1)}>
@@ -29,7 +34,6 @@ export default async function PostsPage() {
 
   return (
     <div>
-      <h1>Страница #{pageNumber}</h1>
       <div>
         <div>Posts:</div>
         <div>
@@ -37,16 +41,18 @@ export default async function PostsPage() {
             <article key={post.sys.id}>
               <h2>{post.fields.title}</h2>
               <section>
-                {post.fields.description} 
+                {post.fields.description}
                 <Link href={`/post/${post.fields.slug}`}>Read more...</Link>
               </section>
             </article>
-
           ))}
         </div>
       </div>
-      <div>Prev page {Prev}</div>
-      <div>Next page {Next}</div>
+      <div className="buttons">
+        <button className="prev">Prev page {Prev}</button>
+        <div className="page">Страница #{pageNumber}</div>
+        <button className="next">Next page {Next}</button>
+      </div>
     </div>
   );
 }
