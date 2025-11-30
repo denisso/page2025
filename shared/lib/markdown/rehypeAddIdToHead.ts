@@ -4,7 +4,7 @@
 import { visit } from "unist-util-visit";
 import { Node } from "unist";
 import { Element } from "hast";
-import { translite } from "../tranlite";
+import { translite } from "../translite";
 
 interface TextNode extends Node {
   type: "text";
