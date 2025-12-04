@@ -1,20 +1,20 @@
 /**
- * типы данных модели контента на сайте
+ * типы данных модели контента в приложении и CMS
  */
 
 /**
- * набор системных полей
+ * системные поля сущности из CMS
  */
 export type SYSFields = {
-  createdAt: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt?: Date;
   id: string;
 };
 
 /**
- * набор мета полей
+ * мета поля сущности из CMS
  */
-export type MetaFields = { tags: string[] };
+export type MetaFields = { tags: string[]; taxonomies: string[] };
 
 /**
  * свойства картинки
@@ -27,30 +27,33 @@ export type ContentImage = {
 };
 
 /**
- * типы свойств
+ * типы которые используются в приложении
  */
-export type FieldsTypes = {
-  slug: string;
-  title: string;
-  image: ContentImage | null;
-  body: string;
-  refs: string | null;
-  json: string;
-  position: string;
-  job: string;
-  description: string;
-  responsibilities: string;
-  dateFrom: number | null;
-  dateTo: number | null;
-};
-
-export type Fields = keyof FieldsTypes ;
+export type Types = "number" | "string" | "date" | "image";
 
 /**
- * сущность со всеми свойствами
+ * для преобразования в типы ts
  */
-export type EntryResult<T extends readonly Fields[]> = {
+export type TypesMap = {
+  [K in Types]: K extends "number"
+    ? number
+    : K extends "string"
+    ? string
+    : K extends "date"
+    ? Date
+    : K extends "image"
+    ? ContentImage
+    : never;
+};
+
+/**
+ * сущность со свойствами metadata и sys
+ */
+export type EntryResult<
+  S extends readonly string[],
+  M extends Record<S[number], Types>
+> = {
   sys: SYSFields;
   metadata: MetaFields;
-  fields: Pick<FieldsTypes, T[number]>;
+  fields: { [K in S[number]]: TypesMap[M[K]] };
 };
