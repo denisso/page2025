@@ -4,14 +4,13 @@
 import { getPosts } from "@/entities/post";
 import Link from "next/link";
 
-
 export default async function PostsPage() {
-  const pageNumber = 0
+  const pageNumber = 0;
 
   if (isNaN(pageNumber)) {
     return <Link href={"/posts"}>Goto posts</Link>;
   }
-  const posts = await getPosts(null, null, pageNumber, 2);
+  const posts = await getPosts({ skip: pageNumber, limit: 2 });
   console.log(posts);
   const Prev =
     pageNumber > 0 ? (
@@ -37,11 +36,10 @@ export default async function PostsPage() {
             <article key={post.sys.id}>
               <h2>{post.fields.title}</h2>
               <section>
-                {post.fields.description} 
+                {post.fields.description}
                 <Link href={`/post/${post.fields.slug}`}>Read more...</Link>
               </section>
             </article>
-
           ))}
         </div>
       </div>

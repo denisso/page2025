@@ -3,6 +3,7 @@
  */
 import { getPosts } from "@/entities/post";
 import Link from "next/link";
+import { PostsList } from "@/entities/post/ui/PostsList";
 
 interface Props {
   params: {
@@ -16,7 +17,7 @@ export default async function PostsPage({ params }: Props) {
   if (isNaN(pageNumber)) {
     return <Link href={"/posts"}>Goto posts</Link>;
   }
-  const posts = await getPosts(null, null, pageNumber, 2);
+  const posts = await getPosts({ skip: pageNumber, limit: 2 });
 
   const Prev =
     pageNumber > 0 ? (
@@ -37,15 +38,7 @@ export default async function PostsPage({ params }: Props) {
       <div>
         <div>Posts:</div>
         <div>
-          {posts.entries.map((post) => (
-            <article key={post.sys.id}>
-              <h2>{post.fields.title}</h2>
-              <section>
-                {post.fields.description}
-                <Link href={`/post/${post.fields.slug}`}>Read more...</Link>
-              </section>
-            </article>
-          ))}
+          <PostsList posts={posts.entries} />
         </div>
       </div>
       <div className="buttons">

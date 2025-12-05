@@ -3,10 +3,9 @@ import type {
   GetEntriesProps,
   GetEntriesResult,
 } from "@/shared/api/types";
-import type { Fields, EntryResult, SYSFields } from "@/shared/types";
-import { getSYS, getMetadata, transformFields } from "./helpers";
+import type { Types, EntryResult } from "@/shared/types";
+import { transformFields } from "./helpers";
 import { client } from "./client";
-
 
 /**
  * Фильтр сущностей
@@ -14,40 +13,56 @@ import { client } from "./client";
 type EntriesFilter = Partial<{
   // тип сущности
   content_type: string;
-  // лимит запрошенных сущностей
+  // максимальное количество сущностей в ответе
   limit: number;
   skip?: number;
+  // запросить несколько сущностей по массиву tags
   "metadata.tags.sys.id[in]": string[];
+  // запросить несколько сущностей по массиву taxonomy
   "metadata.concepts.sys.id[in]": string[];
+  // запросить несколько сущностей по массиву типов
   "sys.contentType.sys.id[in]": string[];
   select: ("sys" | "metadata.tags" | "fields")[];
+  // порядок
   order: ("sys.createdAt" | "-sys.createdAt")[];
+  // фильтр
+  where: { [key: string]: string };
 }>;
 
 /**
  * получить сущности по фильтру
- * @param param0
+ * @param {
+ *  select - свойства сущности которые запрашиваем
+ *  where - фильтр
+ *  order - порядок
+ *  limit - максимальное количество сущностей в ответе
+ *  skip - количество сущностей которые пропускаем
+ * }
  * @returns
  */
-export const getEntries: GetEntries = async <T extends readonly Fields[]>({
-  type,
-  fields,
-  tags,
-  taxonomies,
+export const getEntries: GetEntries = async <
+  S extends readonly string[],
+  M extends Record<S[number], Types>
+>({
+  select,
+  types,
+  where,
   limit,
   skip = 0,
-}: GetEntriesProps<T>): Promise<GetEntriesResult<T>> => {
+}: GetEntriesProps<S, M>): Promise<GetEntriesResult<S, M>> => {
+  const { type, tags, taxonomies } = where;
   const filter: EntriesFilter = {
     content_type: type,
     limit,
-    select: ["sys", "metadata.tags"].concat(
-      fields.map((field) => "fields." + field) 
-    ) as EntriesFilter["select"],
     order: ["-sys.createdAt"],
     skip,
   };
-  if (Array.isArray(filter["select"])) {
-    filter["select"] = ["sys", ...filter["select"]];
+  if (Array.isArray(select) && select.length) {
+    filter["select"] = [
+      "sys",
+      "metadata.tags",
+      ...(select.map((field) => "fields." + field) as "fields"[]),
+    ];
   }
   // if (types) {
   //   filter["sys.contentType.sys.id[in]"] = types;
@@ -60,19 +75,12 @@ export const getEntries: GetEntries = async <T extends readonly Fields[]>({
   }
   return client.getEntries(filter).then((data) => {
     const { total, skip, limit } = data;
-    const entries: EntryResult<T>[] = [];
+    const entries: EntryResult<S, M>[] = [];
     const items = data.items;
     for (const item of items) {
-      const sys: SYSFields = getSYS(item);
-      const metadata = getMetadata(item);
-      const fieldsResult = transformFields<T>(item, fields);
-      entries.push({
-        sys,
-        fields: fieldsResult as EntryResult<T>["fields"],
-        metadata,
-      });
+      const result = transformFields(select, types, item);
+      entries.push(result);
     }
     return { total, skip, limit, entries };
   });
 };
-

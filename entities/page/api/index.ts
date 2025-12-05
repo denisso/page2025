@@ -1,6 +1,6 @@
-import { getEntry } from "@/shared/api";
-import { fields } from "../model";
+import { getEntryById } from "@/shared/api";
+import { fields, fieldsTypes } from "../model";
 
 export const getPage = (id: string) => {
-  return getEntry(id, fields);
+  return getEntryById(id, fields, fieldsTypes);
 };

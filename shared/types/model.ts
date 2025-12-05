@@ -17,7 +17,7 @@ export type SYSFields = {
 export type MetaFields = { tags: string[]; taxonomies: string[] };
 
 /**
- * свойства картинки
+ * тип для картинки
  */
 export type ContentImage = {
   src: string;
@@ -27,9 +27,14 @@ export type ContentImage = {
 };
 
 /**
+ * тип для json
+ */
+// export type JSON<S extends readonly string[]> = { [K in S[number]]: string };
+
+/**
  * типы которые используются в приложении
  */
-export type Types = "number" | "string" | "date" | "image";
+export type Types = "number" | "string" | "date" | "image" | "json";
 
 /**
  * для преобразования в типы ts
@@ -43,6 +48,8 @@ export type TypesMap = {
     ? Date
     : K extends "image"
     ? ContentImage
+    // : K extends "json"
+    // ? JSON
     : never;
 };
 

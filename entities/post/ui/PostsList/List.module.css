@@ -1,0 +1,25 @@
+.list-posts,
+.post {
+  display: flex;
+  flex-direction: column;
+}
+
+.header,
+.content {
+  display: flex;
+}
+
+.content .image {
+  flex-basis: 30%;
+}
+.content .text {
+  flex-basis: 70%;
+}
+.date {
+  margin-right: 1rem;
+}
+
+.title,
+.date {
+  font-size: 1.3rem;
+}

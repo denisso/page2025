@@ -1,12 +1,30 @@
-import type { Fields, EntryResult } from "@/shared/types";
+/**
+ * экспортируем методы обертки для выбранного поставщика контента
+ * сейчас CMS Contentful
+ */
+import type { EntryResult, Types } from "@/shared/types";
 import type { GetEntriesProps, GetEntriesResult } from "./types";
 import * as client from "./contentful";
 
-export const getEntry = async <T extends readonly Fields[]>(
+/**
+ * Получить сущность по id
+ * @param id 
+ * @param select 
+ * @param types 
+ * @returns 
+ */
+export const getEntryById = async <
+  S extends readonly string[],
+  M extends Record<S[number], Types>
+>(
   id: string,
-  fields: T
-): Promise<EntryResult<T>> => client.getEntry<T>(id, fields);
+  select: S,
+  types: M
+): Promise<EntryResult<S, M>> => client.getEntryById(id, select, types);
 
-export const getEntries = async <T extends readonly Fields[]>(
-  filter: GetEntriesProps<T>
-): Promise<GetEntriesResult<T>> => client.getEntries<T>(filter);
+export const getEntries = async <
+  S extends readonly string[],
+  M extends Record<S[number], Types>
+>(
+  props: GetEntriesProps<S, M>
+): Promise<GetEntriesResult<S, M>> => client.getEntries(props);

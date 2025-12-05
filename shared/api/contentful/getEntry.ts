@@ -1,24 +1,21 @@
-import { client } from "./client";
-import type { Fields, EntryResult, SYSFields } from "@/shared/types";
-
 import type { EntrySkeletonType } from "contentful";
-import { getSYS, getMetadata, transformFields } from "./helpers";
+import { client } from "./client";
+import type { EntryResult, Types } from "@/shared/types";
+import { transformFields } from "./helpers";
+import type { GetEntryById } from "../types";
 
-
-export const getEntry = async <T extends readonly Fields[]>(
+export const getEntryById: GetEntryById = async <
+  S extends readonly string[],
+  M extends Record<S[number], Types>
+>(
   id: string,
-  fields: T
-): Promise<EntryResult<T>> => {
+  select: S,
+  types: M
+): Promise<EntryResult<S, M>> => {
   return client
-    .getEntry<EntrySkeletonType<EntryResult<T>>>(id)
+    .getEntry<EntrySkeletonType<EntryResult<S, M>>>(id)
     .then((entry) => {
-      const sys: SYSFields = getSYS(entry);
-      const metadata = getMetadata(entry);
-
-      const fieldsResult = transformFields<T>(entry, fields);
-
-      return { sys, fields: fieldsResult, metadata };
+      const result = transformFields(select, types, entry);
+      return result;
     });
 };
-
-
