@@ -1,9 +1,16 @@
+/**
+ * Обертка для функции Contentful getEntry
+ * 
+ */
 import type { EntrySkeletonType } from "contentful";
 import { client } from "./client";
 import type { EntryResult, Types } from "@/shared/types";
 import { transformFields } from "./helpers";
 import type { GetEntryById } from "../types";
 
+/**
+ * Получить сущность по Id
+ */
 export const getEntryById: GetEntryById = async <
   S extends readonly string[],
   M extends Record<S[number], Types>

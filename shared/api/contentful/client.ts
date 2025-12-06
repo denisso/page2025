@@ -1,3 +1,6 @@
+/**
+ * Contentful client
+ */
 import * as contentful from "contentful";
 import { getEnv } from "@/shared/lib";
 

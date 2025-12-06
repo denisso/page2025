@@ -8,7 +8,7 @@ import { transformFields } from "./helpers";
 import { client } from "./client";
 
 /**
- * Фильтр сущностей
+ * Фильтр сущностей в контекте Contentful
  */
 type EntriesFilter = Partial<{
   // тип сущности
@@ -30,15 +30,7 @@ type EntriesFilter = Partial<{
 }>;
 
 /**
- * получить сущности по фильтру
- * @param {
- *  select - свойства сущности которые запрашиваем
- *  where - фильтр
- *  order - порядок
- *  limit - максимальное количество сущностей в ответе
- *  skip - количество сущностей которые пропускаем
- * }
- * @returns
+ * Получает сущности по указанным параметрам.
  */
 export const getEntries: GetEntries = async <
   S extends readonly string[],
@@ -54,9 +46,11 @@ export const getEntries: GetEntries = async <
   const filter: EntriesFilter = {
     content_type: type,
     limit,
+    // пока сделано что самы последние посты будут сначала
     order: ["-sys.createdAt"],
     skip,
   };
+  // выборка свойств сущности которые нужно получить в результате
   if (Array.isArray(select) && select.length) {
     filter["select"] = [
       "sys",
@@ -64,12 +58,21 @@ export const getEntries: GetEntries = async <
       ...(select.map((field) => "fields." + field) as "fields"[]),
     ];
   }
+  // фильтр сущностей по нескольким типам 
+  // но я пришел к выводу что лучше выбирать один тип 
+  // и систематизировать сущности в контекте одно типа используя taxonomy
+  // это логичнее как мне кажется 
+  // поэтому выбирать несколько типов не требуется, но это возможно
   // if (types) {
   //   filter["sys.contentType.sys.id[in]"] = types;
   // }
+
+  // фильтр по тегам
   if (tags && tags.length) {
     filter["metadata.tags.sys.id[in]"] = tags;
   }
+
+  // фильтр по taxonomy 
   if (taxonomies && taxonomies.length) {
     filter["metadata.concepts.sys.id[in]"] = taxonomies;
   }
