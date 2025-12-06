@@ -100,16 +100,20 @@ export const transformFields = <
           value
         ) as TypesMap[M[typeof field]];
       }
+      break;
       case "string": {
         fields[field as keyof typeof fields] =
           value as TypesMap[M[typeof field]];
       }
+      break;
       case "date": {
         fields[field as keyof typeof fields] = new Date(
           value
         ) as TypesMap[M[typeof field]];
       }
+      break;
       default:
+        
     }
   }
 

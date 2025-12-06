@@ -33,7 +33,7 @@ export default async function PostPage({ params }: PageProps) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const post = await getPostById(params.slug);
+  const post = await getPostById((await params).slug);
 
   if (!post) {
     return {
