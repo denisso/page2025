@@ -1,4 +1,4 @@
-import { getPost } from "@/entities/post";
+import { getPostById } from "@/entities/post";
 import { notFound } from "next/navigation";
 import type { Post } from "@/entities/post";
 import Link from "next/link";
@@ -12,7 +12,7 @@ interface PageProps {
 export default async function PostPage({ params }: PageProps) {
   let post: null | Post = null;
   try {
-    post = await getPost((await params).slug);
+    post = await getPostById((await params).slug);
   } catch {}
 
   if (!post) {
@@ -33,7 +33,7 @@ export default async function PostPage({ params }: PageProps) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const post = await getPost(params.slug);
+  const post = await getPostById(params.slug);
 
   if (!post) {
     return {

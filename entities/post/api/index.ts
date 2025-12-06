@@ -8,12 +8,13 @@ import type { GetEntriesProps } from "@/shared/api/types";
  * @returns
  */
 
-export const getEntryById = async <
+export const getPostById = async <
   T extends readonly (typeof fields)[number][] = typeof fields
 >(
   id: string,
-  select: T
+  _select?: T
 ) => {
+  const select =  (!_select ? fields : _select) as T
   const result = await api.getEntryById(id, select, fieldsTypes);
   return result;
 };
@@ -29,11 +30,6 @@ type GetPostsProps<
 
 /**
  * Получить массив постов по параметрам
- * @param select список запрашиваемых свойств
- * @param where фильтр
- * @param skip - начина с какого поста в выборке, по умолчанию 0
- * @param limit - сколько постов будет в выборке по умолчанию 10
- * @returns
  */
 export const getPosts = <T extends typeof fields>({
   select,
