@@ -29,7 +29,7 @@ const cyrillicToLatinMap: CyrillicToLatinMap = {
   ц: "ts",
   ч: "ch",
   ш: "sh",
-  щ: "shch",
+  щ: "sch",
   ъ: "",
   ы: "y",
   ь: "",
@@ -40,6 +40,12 @@ const cyrillicToLatinMap: CyrillicToLatinMap = {
 
 const codea: number = "a".charCodeAt(0);
 
+/**
+ * Преобразование строки utf8 в транслит согласно 
+ * https://ru.wikipedia.org/wiki/Транслит
+ * @param text строка которыю нужно превратить в транслит
+ * @returns 
+ */
 export function translite(text: string): string {
   const result: string[] = [];
 
