@@ -1,2 +1,3 @@
-export * from "./processors/ast-to-html";
-export * from "./processors/markdown-to-ast";
+export * from "./processors/transformASTToHTML";
+export * from "./processors/transformMarkdownToAST";
+export * from "./helpers/getHeadersFromAST"

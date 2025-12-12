@@ -6,7 +6,7 @@ import { unified } from "unified";
 import rehypeStringify from "rehype-stringify";
 import type { Root } from "hast";
 
-export async function transformASTtoHTML(ast: Root) {
+export async function transformASTToHTML(ast: Root) {
   const processor = unified().use(rehypeStringify, {
     allowDangerousHtml: true,
   });

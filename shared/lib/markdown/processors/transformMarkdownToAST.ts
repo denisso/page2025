@@ -12,8 +12,11 @@ import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 export async function transformMarkdownToAST(markdown: string) {
   const processor = unified()
     .use(remarkParse)
+    // загружаем стандартные правила генерации
     .use(remarkGfm)
+    // подключаем генерацию html
     .use(remarkRehype, { allowDangerousHtml: true })
+    // разрешаем на тегах только эти свойства чтобы не перегружать генерацию
     .use(rehypeSanitize, {
       ...defaultSchema,
       tagNames: [...(defaultSchema.tagNames || []), "section", "iframe"],
@@ -24,6 +27,7 @@ export async function transformMarkdownToAST(markdown: string) {
         a: ["href", "rel", "target"],
       },
     })
+    // используем свой плагин для добавления id в заголовки html
     .use(rehypeAddIdToHead);
 
   const ast = processor.parse(markdown);
