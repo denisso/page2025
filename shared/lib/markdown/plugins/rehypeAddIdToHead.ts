@@ -1,10 +1,15 @@
 /**
- * плагин для добавления id элементам h1-h6 в html 
+ * плагин для добавления id элементам h1-h6 в html
  */
 import { visit } from "unist-util-visit";
 import type { Node } from "unist";
 import type { Element } from "hast";
 import { translite } from "../../translite";
+
+// список элементов h1 - h6
+const headersNamesSet = new Set(
+  Array.from({ length: 6 }, (_, i) => "h" + (i + 1))
+);
 
 interface TextNode extends Node {
   type: "text";
@@ -31,9 +36,12 @@ export function rehypeAddIdToHead() {
 
   return (tree: Node) => {
     visit(tree, "element", (node: Element) => {
-      if (node.tagName && node.tagName.match(/^h[1-6]$/)) {
+      if (
+        typeof node.tagName == "string" &&
+        headersNamesSet.has(node.tagName.toLowerCase())
+      ) {
         const text: string = getTextContent(node);
-        
+
         if (text) {
           const baseId: string = translite(text);
 

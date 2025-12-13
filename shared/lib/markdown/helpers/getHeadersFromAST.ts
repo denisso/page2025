@@ -42,8 +42,11 @@ export const getHeadersFromAST = (tree: Root) => {
   const root: RootHeader = { level: 0, children: [] };
   let parent: NodeHeader = root as NodeHeader;
   const dfsParse = (node: Element) => {
-    if (headersNamesSet.has(node.tagName)) {
-      // нашли элемент h1 - h6
+    if (
+      typeof node.tagName == "string" &&
+      headersNamesSet.has(node.tagName.toLowerCase())
+    ) {
+      // нашли элемент h1 - 6
       // определили его уровень
       const level = +node.tagName[1];
       const title = getText(node);
@@ -58,7 +61,7 @@ export const getHeadersFromAST = (tree: Root) => {
       // новый header становится временным родителем
       parent = nodeHeader;
     } else {
-      // ищем другие элементы h1 - h6
+      // обходим другие элементы в которых могут быть элементы h1-6
       for (const child of node.children ?? []) {
         if (child.type == "text") {
           continue;

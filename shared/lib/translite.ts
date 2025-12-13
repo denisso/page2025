@@ -1,7 +1,7 @@
 interface CyrillicToLatinMap {
   [key: string]: string;
 }
-
+// транслируемые символы
 const cyrillicToLatinMap: CyrillicToLatinMap = {
   а: "a",
   б: "b",
@@ -38,21 +38,32 @@ const cyrillicToLatinMap: CyrillicToLatinMap = {
   я: "ya",
 };
 
-const codea: number = "a".charCodeAt(0);
+// доступные символы согласно RFC 3986
+const chars = new Set<string>();
+const codea = "a".charCodeAt(0);
+for (let i = 0; i < 26; i++) {
+  chars.add(String.fromCharCode(codea + i));
+}
+for (let i = 0; i < 10; i++) {
+  chars.add("" + i);
+}
+for (const char of ["-", "_", ".", "!", "~", "*", "'", "(", ")"]) {
+  chars.add(char);
+}
 
 /**
- * Преобразование строки utf8 в транслит согласно 
+ * Преобразование строки utf8 в транслит согласно
  * https://ru.wikipedia.org/wiki/Транслит
  * @param text строка которыю нужно превратить в транслит
- * @returns 
+ * @returns
  */
 export function translite(text: string): string {
   const result: string[] = [];
 
   for (let char of text) {
     char = char.toLowerCase();
-    const code: number = char.charCodeAt(0);
-    if (code >= codea && codea + 25 >= code) {
+
+    if (chars.has(char)) {
       result.push(char);
     } else if (cyrillicToLatinMap[char]) {
       result.push(cyrillicToLatinMap[char]);
@@ -61,6 +72,8 @@ export function translite(text: string): string {
     }
   }
 
-  if (result.at(-1) === "-") result.pop();
+  if (result.at(-1) === "-") {
+    result.pop();
+  }
   return result.join("");
 }
