@@ -6,7 +6,7 @@ import { defineConfig } from "vitest/config";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 
 import { playwright } from "@vitest/browser-playwright";
-
+import tsconfigPaths from "vite-tsconfig-paths";
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname
@@ -14,16 +14,24 @@ const dirname =
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  resolve: {
-    alias: [{ find: "@", replacement: path.resolve(__dirname, ".") }],
-  },
   test: {
+    // для отладки
+    testTimeout: 0,
     projects: [
       {
+        // теперь работаю пути начинающиеся с @ в import
+        plugins: [tsconfigPaths()],
         test: {
           name: "node",
           environment: "node",
           include: ["__tests__/**/*.test.ts", "__tests__/**/*.spec.ts"],
+          exclude: [
+            "**/node_modules/**",
+            "**/.next/**",
+            "**/*.stories.{ts,tsx}", 
+            ".storybook/**",
+            "**/storybook-static/**",
+          ],
           setupFiles: [],
         },
       },
@@ -43,8 +51,6 @@ export default defineConfig({
             instances: [{ browser: "chromium" }],
           },
           setupFiles: [".storybook/vitest.setup.ts"],
-          // для отладки
-          testTimeout: 0,
         },
       },
     ],
