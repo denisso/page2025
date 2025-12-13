@@ -1,7 +1,10 @@
+/**
+ * тест работы метода который гененрирует 
+ */
 import { describe, it, expect } from "vitest";
 import { transformMarkdownToAST } from "../shared/lib/markdown";
 import {
-  getHeadersFromAST,
+  buildHeadersTreeFromAST,
   type RootHeader,
   NodeHeader,
 } from "../shared/lib/markdown";
@@ -72,13 +75,13 @@ const verifyTestData = (rootTest: RootHeader, rootVerify: RootHeader) => {
   return true;
 };
 
-describe("getHeadersFromAST.test", () => {
+describe("buildHeadersTreeFromAST.test", () => {
   it("должен преобразовать ast в дерево заголовков типа RootHeader", async () => {
     const { markdown, root } = generateTestData([
       1, 2, 3, 4, 5, 2, 3, 4, 5, 3, 4, 5,
     ]);
     const ast = await transformMarkdownToAST(markdown);
-    const headers = getHeadersFromAST(ast);
+    const headers = buildHeadersTreeFromAST(ast);
     expect(verifyTestData(root, headers)).toBe(true);
   });
 });
