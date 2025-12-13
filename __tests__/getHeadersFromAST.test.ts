@@ -1,15 +1,14 @@
 /**
- * тест работы метода который гененрирует 
+ * тест работы метода который гененрирует дерево заголовков из AST Markdown
  */
 import { describe, it, expect } from "vitest";
-import { transformMarkdownToAST } from "../shared/lib/markdown";
+import { transformMarkdownToAST } from "@/shared/lib/markdown";
 import {
   buildHeadersTreeFromAST,
   type RootHeader,
   NodeHeader,
-} from "../shared/lib/markdown";
-import { translite } from "../shared/lib/translite";
-
+} from "@/shared/lib/markdown";
+import { factoryGenUniqId } from "@/shared/lib/markdown/helpers/genUniqId";
 type Levels = 1 | 2 | 3 | 4 | 5 | 6;
 
 const generateTestData = (levels: Levels[]) => {
@@ -17,7 +16,7 @@ const generateTestData = (levels: Levels[]) => {
   const n = levels.length;
   let parent: NodeHeader = root as NodeHeader;
   let markdown = "";
-  const usedIds: Set<string> = new Set();
+  const genUniqId = factoryGenUniqId()
   for (let i = 0; i < n; i++) {
     const level = levels[i];
     while (parent.level >= level) {
@@ -25,13 +24,7 @@ const generateTestData = (levels: Levels[]) => {
       parent = parent.parent as NodeHeader;
     }
     const title = "level" + level + " index" + i;
-    let id = translite(title);
-    let counter: number = 1;
-    while (usedIds.has(id)) {
-      id = `${id}-${counter}`;
-      counter++;
-    }
-    usedIds.add(id);
+    const id = genUniqId(title);
     const node: NodeHeader = {
       level,
       children: [],
