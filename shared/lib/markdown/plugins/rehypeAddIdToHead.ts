@@ -4,8 +4,7 @@
 import { visit } from "unist-util-visit";
 import type { Node } from "unist";
 import type { Element } from "hast";
-import { translite } from "../../translite";
-
+import { factoryGenUniqId } from "../helpers/genUniqId";
 // список элементов h1 - h6
 const headersNamesSet = new Set(
   Array.from({ length: 6 }, (_, i) => "h" + (i + 1))
@@ -16,6 +15,11 @@ interface TextNode extends Node {
   value: string;
 }
 
+/**
+ * получить текст из элементов типа text
+ * @param node 
+ * @returns 
+ */
 function getTextContent(node: Node): string {
   if (node.type === "text") {
     return (node as TextNode).value;
@@ -31,29 +35,21 @@ function getTextContent(node: Node): string {
   return "";
 }
 
+/**
+ * добавить id в AST hypertext(html)
+ * @returns 
+ */
 export function rehypeAddIdToHead() {
-  const usedIds: Set<string> = new Set();
-
+  const genUniqId = factoryGenUniqId()
   return (tree: Node) => {
     visit(tree, "element", (node: Element) => {
       if (
         typeof node.tagName == "string" &&
         headersNamesSet.has(node.tagName.toLowerCase())
       ) {
-        const text: string = getTextContent(node);
-
+        const text = getTextContent(node);
         if (text) {
-          const baseId: string = translite(text);
-
-          let id: string = baseId;
-          let counter: number = 1;
-          while (usedIds.has(id)) {
-            id = `${baseId}-${counter}`;
-            counter++;
-          }
-
-          usedIds.add(id);
-
+          const id  = genUniqId(text);
           if (!node.properties) node.properties = {};
           node.properties.id = id;
         }
