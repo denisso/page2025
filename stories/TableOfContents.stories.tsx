@@ -1,13 +1,20 @@
 import type { StoryObj } from "@storybook/react";
 import { TableOfContents } from "@/widgets/TableOfContents";
-import { headersSnips, type Snip } from "./TableOfContents.snips";
+import { headersSnips } from "./TableOfContents.snips";
+import type { RootHeader
 
-const keys = Object.keys(headersSnips) as Array<keyof typeof headersSnips>;
+ } from "@/shared/lib/markdown";
+const keysSnips = Object.keys(headersSnips) as Array<keyof typeof headersSnips>;
 
-export const headerLabels = keys.reduce((acc, key) => {
+export const labelsSnips = keysSnips.reduce((acc, key) => {
   acc[key] = headersSnips[key].label;
   return acc;
 }, {} as Record<keyof typeof headersSnips, string>);
+
+const mapping = keysSnips.reduce((acc, key) => {
+  acc[key] = headersSnips[key].test; // <-- Берем только test!
+  return acc;
+}, {} as Record<keyof typeof headersSnips, RootHeader>);
 
 const meta = {
   title: "Components/TableOfContents",
@@ -15,20 +22,20 @@ const meta = {
   argTypes: {
     headers: {
       control: "select",
-      options: Object.keys(headersSnips),
-      labels: headerLabels,
+      options: keysSnips,
+      labels: labelsSnips,
       description: "Набор заголовков для таблицы содержания",
       table: {
         type: {
           summary: "Headers",
-          detail: JSON.stringify(headersSnips.basic.headers, null, 2),
+          detail: JSON.stringify(headersSnips.empty.test, null, 2),
         },
       },
-      mapping: headersSnips,
+      mapping,
     },
   },
   args: {
-    headers: headersSnips.basic.headers, // Значение по умолчанию
+    headers: headersSnips.empty.test, // Значение по умолчанию
   },
 };
 
@@ -37,12 +44,12 @@ type Story = StoryObj<typeof meta>;
 // Stories с конкретными наборами
 export const Basic: Story = {
   args: {
-    headers: headersSnips.basic.headers,
+    headers: headersSnips.basic.test,
   },
 };
 
-export const Documentation: Story = {
+export const LongText: Story = {
   args: {
-    headers: headersSnips.docs.headers,
+    headers: headersSnips.long.test,
   },
 };
