@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { transformMarkdownToAST } from "../shared/lib/markdown";
 
 describe("transformMarkdownToAST", () => {
-  it("должен преобразовать markdown с заголовком в AST с h1 и корректным id", async () => {
+  it("должен преобразовать markdown с заголовком в AST с h1 и корректным id", () => {
     const markdown = "# Hello World This";
-    const ast = await transformMarkdownToAST(markdown);
+    const ast = transformMarkdownToAST(markdown);
 
     expect(ast).toBeDefined();
     expect(ast.type).toBe("root");

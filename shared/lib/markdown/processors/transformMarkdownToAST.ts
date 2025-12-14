@@ -9,7 +9,7 @@ import remarkRehype from "remark-rehype";
 import { rehypeAddIdToHead } from "../plugins/rehypeAddIdToHead";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 
-export async function transformMarkdownToAST(markdown: string) {
+export function transformMarkdownToAST(markdown: string) {
   const processor = unified()
     .use(remarkParse)
     // загружаем стандартные правила генерации
@@ -32,7 +32,7 @@ export async function transformMarkdownToAST(markdown: string) {
 
   const ast = processor.parse(markdown);
 
-  const transformedAST = await processor.run(ast);
+  const transformedAST = processor.runSync(ast);
 
   return transformedAST;
 }
