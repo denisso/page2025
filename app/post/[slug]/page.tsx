@@ -12,18 +12,15 @@ interface PageProps {
     slug: string;
   };
 }
-const testAWiwatPromise = async () => new Promise(resolve=>{
-  setTimeout(resolve, 10000)
-})
+
 const Post = async ({ slug }: { slug: string }) => {
-  await testAWiwatPromise()
   const post: null | Post = await getPostById(slug).catch(() => null);
 
   if (!post) {
     return notFound();
   }
 
-  const ast: Root = await transformMarkdownToAST(post.fields.body);
+  const ast: Root = transformMarkdownToAST(post.fields.body);
   return (
     <article className="post">
       <header>
