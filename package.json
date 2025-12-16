@@ -46,6 +46,11 @@
     "eslint-plugin-storybook": "^10.1.6",
     "playwright": "^1.57.0",
     "storybook": "^10.1.6",
+    "stylelint": "^16.26.1",
+    "stylelint-config-css-modules": "^4.5.1",
+    "stylelint-config-recess-order": "^7.4.0",
+    "stylelint-config-standard": "^39.0.1",
+    "stylelint-use-nesting": "^6.0.1",
     "typescript": "^5",
     "vite": "^7.2.7",
     "vitest": "^4.0.15"
